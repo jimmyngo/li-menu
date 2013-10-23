@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse
 import collections
 import datetime
@@ -9,6 +14,27 @@ import xml.dom.minidom
 from HTMLParser import HTMLParser
 
 MENU_RSS_URL = 'http://legacy.cafebonappetit.com/rss/menu/633'
+
+COLOR_MAP = {
+    'BLACK': "\033[30m",
+    'RED': "\033[31m",
+    'GREEN': "\033[32m",
+    'YELLOW': "\033[33m",
+    'BLUE': "\033[34m",
+    'PURPLE': "\033[35m",
+    'CYAN': "\033[36m",
+    'WHITE': "\033[37m",
+    'BOLD_BLACK': "\033[30;1m",
+    'BOLD_RED': "\033[31;1m",
+    'BOLD_GREEN': "\033[32;1m",
+    'BOLD_YELLOW': "\033[33;1m",
+    'BOLD_BLUE': "\033[34;1m",
+    'BOLD_PURPLE': "\033[35;1m",
+    'BOLD_CYAN': "\033[36;1m",
+    'BOLD_WHITE': "\033[37;1m",
+}
+
+COLOR_RESET = "\033[0m"
 
 class MenuParser(HTMLParser):
     '''
@@ -67,17 +93,21 @@ def get_menu():
         full_menu.append((day, menu_parser.parsed_menu))
     return full_menu
 
-def print_entrees(courses, course):
+def color_print(color, text):
+  print("{0}{1}{2}".format(COLOR_MAP[color], text, COLOR_RESET))
+
+def print_entrees(courses, course, color):
     '''
     Entree printer
     '''
-    print(course)
-    print('-' * len(course))
+    color_print(color, course)
+    color_print(color, '-' * len(course))
     entrees = courses[course]
     if len(entrees) == 0:
         print('No {0} found.'.format(course))
     for entree in sorted(entrees):
         print(entree)
+    print()
 
 
 def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, show_week=False):
@@ -90,14 +120,14 @@ def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, 
     for (idx, (day, courses)) in enumerate(menu):
         # FIXME: Going to assume we always get 5 days
         if show_week is True or datetime.date.today().weekday() == idx:
-            print(day)
-            print('=' * len(day))
+            color_print('BOLD_WHITE', day)
+            color_print('BOLD_WHITE', '=' * len(day))
             if show_breakfast is True:
-                print_entrees(courses, 'Breakfast')
+                print_entrees(courses, 'Breakfast', 'YELLOW')
             if show_lunch is True:
-                print_entrees(courses, 'Lunch')
+                print_entrees(courses, 'Lunch', 'CYAN')
             if show_dinner is True:
-                print_entrees(courses, 'Dinner')
+                print_entrees(courses, 'Dinner', 'GREEN')
 
 def main():
     '''
