@@ -36,6 +36,7 @@ COLOR_MAP = {
 
 COLOR_RESET = "\033[0m"
 
+
 class MenuParser(HTMLParser):
     '''
     Menu parser
@@ -74,6 +75,7 @@ class MenuParser(HTMLParser):
             self._cur_entree.append(data.strip())
             self._append_cur_entree = False
 
+
 def get_menu():
     '''
     Return list of days, menus
@@ -93,8 +95,10 @@ def get_menu():
         full_menu.append((day, menu_parser.parsed_menu))
     return full_menu
 
+
 def color_print(color, text):
-  print("{0}{1}{2}".format(COLOR_MAP[color], text, COLOR_RESET))
+    print("{0}{1}{2}".format(COLOR_MAP[color], text, COLOR_RESET))
+
 
 def print_entrees(courses, course, color):
     '''
@@ -129,6 +133,7 @@ def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, 
             if show_dinner is True:
                 print_entrees(courses, 'Dinner', 'GREEN')
 
+
 def main():
     '''
     Fetch the menu!
@@ -142,6 +147,7 @@ def main():
 
     menu = get_menu()
     print_menu(menu, show_breakfast=args.breakfast, show_lunch=args.lunch, show_dinner=args.dinner, show_week=args.week)
+
 
 if __name__ == '__main__':
     main()
