@@ -87,7 +87,8 @@ def get_menu():
     for item in menu_dom.getElementsByTagName('item'):
         menu_parser = MenuParser()
         title = item.getElementsByTagName('title').item(0)
-        day = title.firstChild.data
+        # title.firstChild.data == 'Thu, 13 Feb 2014'
+        day = datetime.datetime.strptime(title.firstChild.data, '%a, %d %b %Y').date()
         description = item.getElementsByTagName('description').item(0)
 
         day_menu = description.firstChild.data
@@ -104,15 +105,49 @@ def print_entrees(courses, course, color):
     '''
     Entree printer
     '''
-    color_print(color, course)
-    color_print(color, '-' * len(course))
     entrees = courses[course]
     if len(entrees) == 0:
-        print('No {0} found.'.format(course))
+        return
+
+    color_print(color, course)
+    color_print(color, '-' * len(course))
     for entree in sorted(entrees):
         print(entree)
     print()
 
+
+def next_three_meals(menu):
+    breakfast_end = datetime.time(12, 54)
+    lunch_end = datetime.time(13, 30)
+    dinner_end = datetime.time(20, 30)
+
+    time = datetime.datetime.today().time()
+    date = datetime.date.today()
+
+    if time < breakfast_end:
+        return [(day, courses) for day, courses in menu if day == date]
+    elif time < lunch_end:
+        new_menu = [(day, courses) for day, courses in menu if day == date or day == (date + datetime.timedelta(1, 0))]
+        try:
+            # TODO: possible to be missing two of these and you won't get around to deleting the last one.
+            del new_menu[0][1]['Breakfast']
+            del new_menu[1][1]['Lunch']
+            del new_menu[1][1]['Dinner']
+        except KeyError:
+            pass
+        return new_menu
+    elif time < dinner_end:
+        new_menu = [(day, courses) for day, courses in menu if day == date or day == (date + datetime.timedelta(1, 0))]
+        try:
+            del new_menu[0][1]['Breakfast']
+            del new_menu[0][1]['Lunch']
+            del new_menu[1][1]['Dinner']
+        except KeyError:
+            pass
+        return new_menu
+    if time > dinner_end:
+        return [(day, courses) for day, courses in menu if day == (date + datetime.timedelta(1, 0))]
+    return menu
 
 def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, show_week=False):
     '''
@@ -121,17 +156,18 @@ def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, 
     if show_breakfast is not True and show_lunch is not True and show_dinner is not True:
         # Nothing selected, so show all
         show_breakfast, show_lunch, show_dinner = True, True, True
-    for (idx, (day, courses)) in enumerate(menu):
+    if not show_week:
+        menu = next_three_meals(menu)
+    for day, courses in menu:
         # FIXME: Going to assume we always get 5 days
-        if show_week is True or datetime.date.today().weekday() == idx:
-            color_print('BOLD_WHITE', day)
-            color_print('BOLD_WHITE', '=' * len(day))
-            if show_breakfast is True:
-                print_entrees(courses, 'Breakfast', 'YELLOW')
-            if show_lunch is True:
-                print_entrees(courses, 'Lunch', 'CYAN')
-            if show_dinner is True:
-                print_entrees(courses, 'Dinner', 'GREEN')
+        color_print('BOLD_WHITE', str(day))
+        color_print('BOLD_WHITE', '=' * len(str(day)))
+        if show_breakfast is True:
+            print_entrees(courses, 'Breakfast', 'YELLOW')
+        if show_lunch is True:
+            print_entrees(courses, 'Lunch', 'CYAN')
+        if show_dinner is True:
+            print_entrees(courses, 'Dinner', 'GREEN')
 
 
 def main():
