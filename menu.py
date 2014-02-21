@@ -163,8 +163,9 @@ def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, 
 
     for day, courses in menu:
         # FIXME: Going to assume we always get 5 days
-        color_print('BOLD_WHITE', str(day))
-        color_print('BOLD_WHITE', '=' * len(str(day)))
+        daylabel = day.strftime('%Y-%m-%d (%a)').upper()
+        color_print('BOLD_WHITE', daylabel)
+        color_print('BOLD_WHITE', '=' * len(daylabel))
         if show_breakfast is True:
             print_entrees(courses, 'Breakfast', 'YELLOW')
         if show_lunch is True:
