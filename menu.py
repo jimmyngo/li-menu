@@ -117,7 +117,7 @@ def print_entrees(courses, course, color):
 
 
 def next_three_meals(menu):
-    breakfast_end = datetime.time(09, 30)
+    breakfast_end = datetime.time(9, 30)
     lunch_end = datetime.time(13, 30)
     dinner_end = datetime.time(20, 30)
 
