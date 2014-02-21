@@ -76,13 +76,13 @@ class MenuParser(HTMLParser):
             self._append_cur_entree = False
 
 
-def get_menu():
+def get_menu(url):
     '''
     Return list of days, menus
     menus: course->entrees->list(entree)
     '''
     full_menu = []
-    menu = urllib2.urlopen(MENU_RSS_URL)
+    menu = urllib2.urlopen(url)
     menu_dom = xml.dom.minidom.parse(menu)
     for item in menu_dom.getElementsByTagName('item'):
         menu_parser = MenuParser()
@@ -117,7 +117,7 @@ def print_entrees(courses, course, color):
 
 
 def next_three_meals(menu):
-    breakfast_end = datetime.time(12, 54)
+    breakfast_end = datetime.time(09, 30)
     lunch_end = datetime.time(13, 30)
     dinner_end = datetime.time(20, 30)
 
@@ -149,15 +149,18 @@ def next_three_meals(menu):
         return [(day, courses) for day, courses in menu if day == (date + datetime.timedelta(1, 0))]
     return menu
 
-def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, show_week=False):
+def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, show_week=False, show_tomorrow=False):
     '''
     Menu printer
     '''
     if show_breakfast is not True and show_lunch is not True and show_dinner is not True:
         # Nothing selected, so show all
         show_breakfast, show_lunch, show_dinner = True, True, True
-    if not show_week:
+    if show_tomorrow:
+        menu = [(day, courses) for day, courses in menu if day == (datetime.date.today() + datetime.timedelta(1, 0))]
+    elif not show_week:
         menu = next_three_meals(menu)
+
     for day, courses in menu:
         # FIXME: Going to assume we always get 5 days
         color_print('BOLD_WHITE', str(day))
@@ -178,11 +181,15 @@ def main():
     parser.add_argument('-b', '--breakfast', action='store_true', help='show breakfast')
     parser.add_argument('-l', '--lunch', action='store_true', help='show lunch')
     parser.add_argument('-d', '--dinner', action='store_true', help='show dinner')
-    parser.add_argument('-w', '--week', action='store_true', help='show week')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-t", "--tomorrow", action="store_true", help='show tomorrow')
+    group.add_argument('-w', '--week', action='store_true', help='show week')
+    parser.add_argument('-u', '--url', default=MENU_RSS_URL, help=argparse.SUPPRESS)
     args = parser.parse_args()
 
-    menu = get_menu()
-    print_menu(menu, show_breakfast=args.breakfast, show_lunch=args.lunch, show_dinner=args.dinner, show_week=args.week)
+    menu = get_menu(args.url)
+    print_menu(menu, show_breakfast=args.breakfast, show_lunch=args.lunch, show_dinner=args.dinner,
+               show_week=args.week, show_tomorrow=args.tomorrow)
 
 
 if __name__ == '__main__':
