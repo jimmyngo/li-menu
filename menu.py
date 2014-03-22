@@ -131,7 +131,15 @@ def next_three_meals(menu):
         try:
             # TODO: possible to be missing two of these and you won't get around to deleting the last one.
             del new_menu[0][1]['Breakfast']
+        except KeyError:
+            pass
+
+        try:
             del new_menu[1][1]['Lunch']
+        except KeyError:
+            pass
+
+        try:
             del new_menu[1][1]['Dinner']
         except KeyError:
             pass
@@ -140,7 +148,15 @@ def next_three_meals(menu):
         new_menu = [(day, courses) for day, courses in menu if day == date or day == (date + datetime.timedelta(1, 0))]
         try:
             del new_menu[0][1]['Breakfast']
+        except KeyError:
+            pass
+
+        try:
             del new_menu[0][1]['Lunch']
+        except KeyError:
+            pass
+
+        try:
             del new_menu[1][1]['Dinner']
         except KeyError:
             pass
