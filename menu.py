@@ -123,46 +123,46 @@ def next_three_meals(menu):
 
     time = datetime.datetime.today().time()
     date = datetime.date.today()
+    tomorrow = date + datetime.timedelta(1, 0)
 
     if time < breakfast_end:
         return [(day, courses) for day, courses in menu if day == date]
     elif time < lunch_end:
-        new_menu = [(day, courses) for day, courses in menu if day == date or day == (date + datetime.timedelta(1, 0))]
-        try:
-            # TODO: possible to be missing two of these and you won't get around to deleting the last one.
-            del new_menu[0][1]['Breakfast']
-        except KeyError:
-            pass
-
-        try:
-            del new_menu[1][1]['Lunch']
-        except KeyError:
-            pass
-
-        try:
-            del new_menu[1][1]['Dinner']
-        except KeyError:
-            pass
+        new_menu = []
+        for day, courses in menu:
+            if day == date:
+                try:
+                    del courses['Breakfast']
+                except KeyError:
+                    pass
+                new_menu.append((day, courses))
+            if day == tomorrow:
+                for course in ('Lunch', 'Dinner'):
+                    try:
+                        del courses[course]
+                    except KeyError:
+                        pass
+                new_menu.append((day, courses))
         return new_menu
     elif time < dinner_end:
-        new_menu = [(day, courses) for day, courses in menu if day == date or day == (date + datetime.timedelta(1, 0))]
-        try:
-            del new_menu[0][1]['Breakfast']
-        except KeyError:
-            pass
-
-        try:
-            del new_menu[0][1]['Lunch']
-        except KeyError:
-            pass
-
-        try:
-            del new_menu[1][1]['Dinner']
-        except KeyError:
-            pass
+        new_menu = []
+        for day, courses in menu:
+            if day == date:
+                for course in ('Breakfast', 'Lunch'):
+                  try:
+                      del courses[courses]
+                  except KeyError:
+                      pass
+                  new_menu.append((day, courses))
+            if day == tomorrow:
+                try:
+                    del courses['Dinner']
+                except KeyError:
+                    pass
+                new_menu.append((day, courses))
         return new_menu
     if time > dinner_end:
-        return [(day, courses) for day, courses in menu if day == (date + datetime.timedelta(1, 0))]
+        return [(day, courses) for day, courses in menu if day == tomorrow]
     return menu
 
 def print_menu(menu, show_breakfast=False, show_lunch=False, show_dinner=False, show_week=False, show_tomorrow=False):
