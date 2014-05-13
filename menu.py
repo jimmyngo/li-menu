@@ -150,10 +150,10 @@ def next_three_meals(menu):
             if day == date:
                 for course in ('Breakfast', 'Lunch'):
                   try:
-                      del courses[courses]
+                      del courses[course]
                   except KeyError:
                       pass
-                  new_menu.append((day, courses))
+                new_menu.append((day, courses))
             if day == tomorrow:
                 try:
                     del courses['Dinner']
