@@ -9,6 +9,7 @@ import argparse
 import collections
 import datetime
 import urllib2
+import unicodedata
 import xml.dom.minidom
 
 from HTMLParser import HTMLParser
@@ -83,11 +84,12 @@ def get_menu(url):
     '''
     full_menu = []
     menu = urllib2.urlopen(url)
-    menu_dom = xml.dom.minidom.parse(menu)
+    # Workaround bad UTF-8 characters
+    menu_string = menu.read().decode('utf-8', 'replace').encode('utf-8')
+    menu_dom = xml.dom.minidom.parseString(menu_string)
     for item in menu_dom.getElementsByTagName('item'):
         menu_parser = MenuParser()
         title = item.getElementsByTagName('title').item(0)
-        # title.firstChild.data == 'Thu, 13 Feb 2014'
         day = datetime.datetime.strptime(title.firstChild.data, '%a, %d %b %Y').date()
         description = item.getElementsByTagName('description').item(0)
 
