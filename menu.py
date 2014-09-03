@@ -68,12 +68,11 @@ class MenuParser(HTMLParser):
             self._cur_entree = None
             self._change_cur_course = False
         elif self._change_cur_entree is True:
-            if self._cur_entree is not None:
-                self.parsed_menu[self._cur_course].append(' '.join(self._cur_entree))
             self._cur_entree = [data.strip()]
             self._change_cur_entree = False
         elif self._append_cur_entree:
             self._cur_entree.append(data.strip())
+            self.parsed_menu[self._cur_course].append(' '.join(self._cur_entree))
             self._append_cur_entree = False
 
 
